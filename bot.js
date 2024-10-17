@@ -3,7 +3,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 var discordToken = process.env.DISCORD_TOKEN;
-var apiKey = process.env.API_KEY;
+var apiKey1 = process.env.API_KEY;
 var appId = process.env.APP_ID
 var appSecret = process.env.APP_SECRET;
 
@@ -170,7 +170,7 @@ client.on('interactionCreate', async interaction => {
         if (commandName === 'game') {
             const gameName = options.getString('tên');
             const wikiApiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(gameName)}&format=json&explaintext`;
-            const apiKey = apiKey;  // Thay bằng API key của bạn
+            const apiKey = apiKey1;  // Thay bằng API key của bạn
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
@@ -238,7 +238,7 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.isAutocomplete()) {
         const focusedValue = interaction.options.getFocused();
-        const apiKey = apiKey;  // API key của bạn
+        const apiKey = apiKey1;  // API key của bạn
         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${focusedValue}`;
 
         try {
