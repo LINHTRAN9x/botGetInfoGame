@@ -2,10 +2,10 @@ const { Client, GatewayIntentBits,REST, EmbedBuilder,Routes  } = require('discor
 const axios = require('axios');
 require('dotenv').config();
 
-var discordToken = DISCORD_TOKEN;
-var apiKey = API_KEY;
-var appId = APP_ID
-var appSecret = APP_SECRET;
+var discordToken = process.env.DISCORD_TOKEN;
+var apiKey = process.env.API_KEY;
+var appId = process.env.APP_ID
+var appSecret = process.env.APP_SECRET;
 
 function formatDate(dateString) {
     const [year, month, day] = dateString.split('-');
