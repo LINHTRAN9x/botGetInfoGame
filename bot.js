@@ -1,6 +1,6 @@
 const { Client, GatewayIntentBits,REST, EmbedBuilder,Routes  } = require('discord.js');
 const axios = require('axios');
-require('dotenv').config();
+//require('dotenv').config();
 
 
 
