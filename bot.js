@@ -2,7 +2,10 @@ const { Client, GatewayIntentBits,REST, EmbedBuilder,Routes  } = require('discor
 const axios = require('axios');
 require('dotenv').config();
 
-
+var discordToken = DISCORD_TOKEN;
+var apiKey = API_KEY;
+var appId = APP_ID
+var appSecret = APP_SECRET;
 
 function formatDate(dateString) {
     const [year, month, day] = dateString.split('-');
@@ -129,14 +132,14 @@ client.once('ready', () => {
 });
 
 // Đăng ký slash command với autocomplete
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(discordToken);
 
 (async () => {
     try {
         console.log('Đang đăng ký (/) commands.');
 
         await rest.put(
-            Routes.applicationGuildCommands(process.env.APP_ID, process.env.APP_SECRET),  // Thay bằng ID ứng dụng và server của bạn
+            Routes.applicationGuildCommands(appId, appSecret),  // Thay bằng ID ứng dụng và server của bạn
             { body: [
                 {
                     name: 'game',
@@ -167,7 +170,7 @@ client.on('interactionCreate', async interaction => {
         if (commandName === 'game') {
             const gameName = options.getString('tên');
             const wikiApiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(gameName)}&format=json&explaintext`;
-            const apiKey = process.env.API_KEY;  // Thay bằng API key của bạn
+            const apiKey = apiKey;  // Thay bằng API key của bạn
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
@@ -235,7 +238,7 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.isAutocomplete()) {
         const focusedValue = interaction.options.getFocused();
-        const apiKey = process.env.API_KEY;  // API key của bạn
+        const apiKey = apiKey;  // API key của bạn
         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${focusedValue}`;
 
         try {
@@ -310,4 +313,4 @@ client.on('interactionCreate', async interaction => {
 // });
 
 // Đăng nhập vào bot bằng token Discord của bạn
-client.login(DISCORD_TOKEN);
+client.login(discordToken);
