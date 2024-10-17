@@ -129,14 +129,14 @@ client.once('ready', () => {
 });
 
 // Đăng ký slash command với autocomplete
-const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken('MTI5NjI3Mjc4NjY2MjM2MzIxOA.GSaCyh.iHJ-pCi9VwKEcZPBSCJtZDyKThxwtBKgiIXMmM');
 
 (async () => {
     try {
         console.log('Đang đăng ký (/) commands.');
 
         await rest.put(
-            Routes.applicationGuildCommands(process.env.APP_ID, process.env.APP_SECRET),  // Thay bằng ID ứng dụng và server của bạn
+            Routes.applicationGuildCommands('1296272786662363218', '1275826179248754730'),  // Thay bằng ID ứng dụng và server của bạn
             { body: [
                 {
                     name: 'game',
@@ -167,7 +167,7 @@ client.on('interactionCreate', async interaction => {
         if (commandName === 'game') {
             const gameName = options.getString('tên');
             const wikiApiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(gameName)}&format=json&explaintext`;
-            const apiKey = process.env.API_KEY;  // Thay bằng API key của bạn
+            const apiKey = '33153d876f664c52b6180d903a53088b';  // Thay bằng API key của bạn
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
@@ -235,7 +235,7 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.isAutocomplete()) {
         const focusedValue = interaction.options.getFocused();
-        const apiKey = process.env.API_KEY;  // API key của bạn
+        const apiKey = '33153d876f664c52b6180d903a53088b';  // API key của bạn
         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${focusedValue}`;
 
         try {
@@ -310,4 +310,4 @@ client.on('interactionCreate', async interaction => {
 // });
 
 // Đăng nhập vào bot bằng token Discord của bạn
-client.login(process.env.DISCORD_TOKEN);
+client.login('MTI5NjI3Mjc4NjY2MjM2MzIxOA.GSaCyh.iHJ-pCi9VwKEcZPBSCJtZDyKThxwtBKgiIXMmM');
