@@ -129,14 +129,14 @@ client.once('ready', () => {
 });
 
 // Đăng ký slash command với autocomplete
-const rest = new REST({ version: '10' }).setToken(DISCORD_TOKEN);
+const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
 
 (async () => {
     try {
         console.log('Đang đăng ký (/) commands.');
 
         await rest.put(
-            Routes.applicationGuildCommands(APP_ID, APP_SECRET),  // Thay bằng ID ứng dụng và server của bạn
+            Routes.applicationGuildCommands(process.env.APP_ID, process.env.APP_SECRET),  // Thay bằng ID ứng dụng và server của bạn
             { body: [
                 {
                     name: 'game',
@@ -167,7 +167,7 @@ client.on('interactionCreate', async interaction => {
         if (commandName === 'game') {
             const gameName = options.getString('tên');
             const wikiApiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(gameName)}&format=json&explaintext`;
-            const apiKey = API_KEY;  // Thay bằng API key của bạn
+            const apiKey = process.env.API_KEY;  // Thay bằng API key của bạn
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
@@ -235,7 +235,7 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.isAutocomplete()) {
         const focusedValue = interaction.options.getFocused();
-        const apiKey = API_KEY;  // API key của bạn
+        const apiKey = process.env.API_KEY;  // API key của bạn
         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${focusedValue}`;
 
         try {
