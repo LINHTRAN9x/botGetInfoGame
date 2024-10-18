@@ -80,6 +80,17 @@ async function createChart(ratings) {
             plugins: {
                 tooltip: {
                     backgroundColor: '#2A475E', // Màu nền của biểu đồ
+                    titleFont: {
+                    family: 'Roboto', // Chỉ định font cho tooltip
+                    size: 16,
+                    style: 'bold',
+                    lineHeight: 1.2
+                },
+                bodyFont: {
+                    family: 'Roboto', // Chỉ định font cho body tooltip
+                    size: 14,
+                    lineHeight: 1.2
+                }
                 },
             },
            
@@ -88,7 +99,11 @@ async function createChart(ratings) {
                     beginAtZero: true,
                     ticks: {
                         callback: (value) => value < 0 ? "-" +Math.abs(value) : value ,// Hiển thị giá trị âm là số dương
-                        color: '#64BDF0'
+                        color: '#64BDF0',
+                        font: {
+                        family: 'Roboto', // Chỉ định font cho trục y
+                        size: 14
+                        }
                     },
                     grid: {
                         color: '#64BDF0' // Màu của khung lưới cho trục y
@@ -101,7 +116,11 @@ async function createChart(ratings) {
                 },
                 x: {
                     ticks: {
-                        color: '#64BDF0' // Đặt màu chữ cho trục x
+                        color: '#64BDF0', // Đặt màu chữ cho trục x
+                        font: {
+                        family: 'Roboto', // Chỉ định font cho trục x
+                        size: 14
+                        }
                     },
                     grid: {
                         color: '#64BDF0' // Màu của khung lưới cho trục y
