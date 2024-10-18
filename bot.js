@@ -174,8 +174,6 @@ client.on('interactionCreate', async interaction => {
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
-                await interaction.deferReply(); 
-                
                 const response = await axios.get(apiUrl);
                 const responseWiki = await axios.get(wikiApiUrl);
                 const gameInfo = response.data.results[0];
@@ -191,12 +189,13 @@ client.on('interactionCreate', async interaction => {
                     embed.setImage('attachment://chart.png');
                     embed.setThumbnail(gameInfo.background_image);
 
-                    await interaction.followUp({ embeds: [embed], files: [{ name: 'chart.png', attachment: chartBuffer }] });
+                    // Gửi phản hồi ngay lập tức
+                    await interaction.reply({ embeds: [embed], files: [{ name: 'chart.png', attachment: chartBuffer }] });
                 } else {
-                    await interaction.followUp('Không tìm thấy game nào.');
+                    await interaction.reply('Không tìm thấy game nào.');
                 }
             } catch (error) {
-                await interaction.followUp('Có lỗi xảy ra khi tìm kiếm thông tin game.');
+                await interaction.reply('Có lỗi xảy ra khi tìm kiếm thông tin game.');
                 console.error(error);
             }
         }
@@ -221,6 +220,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 });
+
 
 
 
