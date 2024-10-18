@@ -170,29 +170,62 @@ client.on('interactionCreate', async interaction => {
         if (commandName === 'game') {
             const gameName = options.getString('tên');
             const wikiApiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(gameName)}&format=json&explaintext`;
-            const apiKey = apiKey1;
+            const apiKey = apiKey1;  // Thay bằng API key của bạn
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
-                // Sử dụng deferReply() để chờ xử lý tác vụ lâu
                 await interaction.deferReply(); 
-
                 const response = await axios.get(apiUrl);
                 const responseWiki = await axios.get(wikiApiUrl);
-                const gameInfo = response.data.results[0];
+                const gameInfo = response.data.results[0];  // Lấy game đầu tiên
+                const pages = responseWiki.data.query.pages;
+                const page = Object.values(pages)[0];
+                
+                
 
                 if (gameInfo) {
-                    const chartBuffer = await createChart(gameInfo.ratings);
+                    const chartBuffer = await createChart(gameInfo.ratings); // Tạo hình ảnh biểu đồ
                     const embed = new EmbedBuilder()
                         .setColor('#0099ff')
                         .setTitle(gameInfo.name)
                         .setURL(`https://rawg.io/games/${gameInfo.slug}`)
-                        .setDescription(responseWiki.data.query.pages[0].extract || 'Không tìm thấy miêu tả.')
-                        .setImage('attachment://chart.png')
-                        .setThumbnail(gameInfo.background_image);
+                        .setDescription(page.extract? page.extract.substring(0, 400) + '...' : 'Không tìm thấy miêu tả.')
+                        .addFields(
+                            { name: 'Ngày phát hành', value: formatDate(gameInfo.released)  || 'Không có', inline: true },
+                            { name: 'Xếp hạng', value: `${gameInfo.metacritic ? gameInfo.metacritic+" / 100" : gameInfo.rating+" / 5" || 'Không có'}`, inline: true },
+                            { 
+                                name: 'Nền tảng', 
+                                value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}`, 
+                            },
+                            { 
+                                name: 'Cửa hàng', 
+                                value: `${gameInfo.stores ? gameInfo.stores.map(p => p.store.name).join(', ') : 'Không có'}`, 
+                            },
+                           
 
-                    // Sử dụng followUp() để gửi phản hồi sau deferReply()
-                    await interaction.followUp({ embeds: [embed], files: [{ name: 'chart.png', attachment: chartBuffer }] });
+                        );
+                      
+                        if (gameInfo.genres && gameInfo.genres.length > 0) {
+                            const genres = gameInfo.genres.map(genre => genre.name);
+                        
+                            // Lấy thể loại đầu tiên và gộp các thể loại còn lại
+                            const primaryGenre = genres[0]; // Thể loại chính
+                            const otherGenres = genres.slice(1).join(', '); // Gộp các thể loại còn lại
+                        
+                            embed.addFields(
+                                { name: 'Thể loại chính', value: primaryGenre, inline: true },
+                                { name: 'Các thể loại khác', value: otherGenres || 'Không có', inline: true }
+                            );
+                        }
+                        
+                        
+
+                        embed.setImage('attachment://chart.png')
+                   
+                        embed.setThumbnail(gameInfo.background_image); // Ảnh nền
+                        
+
+                    await interaction.followUp({ embeds: [embed] , files: [{ name: 'chart.png', attachment: chartBuffer }] });
                 } else {
                     await interaction.followUp('Không tìm thấy game nào.');
                 }
@@ -205,7 +238,7 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.isAutocomplete()) {
         const focusedValue = interaction.options.getFocused();
-        const apiKey = apiKey1;
+        const apiKey = apiKey1;  // API key của bạn
         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${focusedValue}`;
 
         try {
@@ -214,7 +247,7 @@ client.on('interactionCreate', async interaction => {
                 name: game.name,
                 value: game.name,
             }));
-
+    
             await interaction.respond(choices);
         } catch (error) {
             console.error(error);
@@ -222,7 +255,6 @@ client.on('interactionCreate', async interaction => {
         }
     }
 });
-
 
 
 
