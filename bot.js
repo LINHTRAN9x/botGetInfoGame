@@ -174,6 +174,9 @@ client.on('interactionCreate', async interaction => {
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
+                // Sử dụng deferReply() để chờ xử lý tác vụ lâu
+                await interaction.deferReply(); 
+
                 const response = await axios.get(apiUrl);
                 const responseWiki = await axios.get(wikiApiUrl);
                 const gameInfo = response.data.results[0];
@@ -184,18 +187,17 @@ client.on('interactionCreate', async interaction => {
                         .setColor('#0099ff')
                         .setTitle(gameInfo.name)
                         .setURL(`https://rawg.io/games/${gameInfo.slug}`)
-                        .setDescription(responseWiki.data.query.pages[0].extract || 'Không tìm thấy miêu tả.');
+                        .setDescription(responseWiki.data.query.pages[0].extract || 'Không tìm thấy miêu tả.')
+                        .setImage('attachment://chart.png')
+                        .setThumbnail(gameInfo.background_image);
 
-                    embed.setImage('attachment://chart.png');
-                    embed.setThumbnail(gameInfo.background_image);
-
-                    // Gửi phản hồi ngay lập tức
-                    await interaction.reply({ embeds: [embed], files: [{ name: 'chart.png', attachment: chartBuffer }] });
+                    // Sử dụng followUp() để gửi phản hồi sau deferReply()
+                    await interaction.followUp({ embeds: [embed], files: [{ name: 'chart.png', attachment: chartBuffer }] });
                 } else {
-                    await interaction.reply('Không tìm thấy game nào.');
+                    await interaction.followUp('Không tìm thấy game nào.');
                 }
             } catch (error) {
-                await interaction.reply('Có lỗi xảy ra khi tìm kiếm thông tin game.');
+                await interaction.followUp('Có lỗi xảy ra khi tìm kiếm thông tin game.');
                 console.error(error);
             }
         }
@@ -220,6 +222,7 @@ client.on('interactionCreate', async interaction => {
         }
     }
 });
+
 
 
 
