@@ -1,11 +1,17 @@
 const { Client, GatewayIntentBits,REST, EmbedBuilder,Routes  } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
+const dns = require('dns');
+
+// Thiết lập để chỉ sử dụng IPv4
+dns.setDefaultResultOrder('ipv4first');
 
 var discordToken = process.env.DISCORD_TOKEN;
 var apiKey1 = process.env.API_KEY;
 var appId = process.env.APP_ID
 var appSecret = process.env.APP_SECRET;
+var ggApiKeySecrec = process.env.GG_API_KEY; //
+var mApiKeySecrec = process.env.M_API_KEY;
 
 function formatDate(dateString) {
     const [year, month, day] = dateString.split('-');
@@ -185,33 +191,43 @@ const rest = new REST({ version: '10' }).setToken(discordToken);
 client.on('interactionCreate', async interaction => {
     if (interaction.isCommand()) {
         const { commandName, options } = interaction;
+        
 
         if (commandName === 'game') {
             const gameName = options.getString('tên');
-            const wikiApiUrl = `https://vi.wikipedia.org/w/api.php?action=query&prop=extracts&exintro&titles=${encodeURIComponent(gameName)}&format=json&explaintext`;
+            const ggApiKey = ggApiKeySecrec;
+            const ggApiUrl = `https://kgsearch.googleapis.com/v1/entities:search?query=${encodeURIComponent(gameName)}&key=${ggApiKey}&limit=1&indent=True`;
             const apiKey = apiKey1;  // Thay bằng API key của bạn
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
 
             try {
                 await interaction.deferReply(); 
                 const response = await axios.get(apiUrl);
-                const responseWiki = await axios.get(wikiApiUrl);
+                
                 const gameInfo = response.data.results[0];  // Lấy game đầu tiên
-                const pages = responseWiki.data.query.pages;
-                const page = Object.values(pages)[0];
+                const rs = await axios.get(ggApiUrl);
+                const data = rs.data;
+                console.log("GOOGLE",data.itemListElement[0].result);
+              
                 
                 
 
                 if (gameInfo) {
                     const chartBuffer = await createChart(gameInfo.ratings); // Tạo hình ảnh biểu đồ
+                    const gameDes = data.itemListElement[0].result.detailedDescription.articleBody;
+                    const wikiUrl = data.itemListElement[0].result.detailedDescription.url;
+                    const tranlated = await translateWithMicrosoft(gameDes,'vi');
+                    
                     const embed = new EmbedBuilder()
                         .setColor('#0099ff')
                         .setTitle(gameInfo.name)
                         .setURL(`https://rawg.io/games/${gameInfo.slug}`)
-                        .setDescription(page.extract? page.extract.substring(0, 400) + '...' : 'Không tìm thấy miêu tả.')
+                        .setDescription(tranlated? tranlated: 'Không tìm thấy miêu tả.')
                         .addFields(
+                            { name: 'Chi tiết', value: `${wikiUrl ? wikiUrl : 'Không có'}` },
                             { name: 'Ngày phát hành', value: formatDate(gameInfo.released)  || 'Không có', inline: true },
                             { name: 'Xếp hạng', value: `${gameInfo.metacritic ? gameInfo.metacritic+" / 100" : gameInfo.rating+" / 5" || 'Không có'}`, inline: true },
+                           
                             { 
                                 name: 'Nền tảng', 
                                 value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}`, 
@@ -275,63 +291,35 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
+async function translateWithMicrosoft(text, targetLang) {
+    const mapiKey = mApiKeySecrec;  
+    const endpoint = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'; // Thay bằng URL endpoint của bạn
+    const location = 'southeastasia'; 
+
+    const url = `${endpoint}&to=${targetLang}`;  // Ngôn ngữ đích, ví dụ: 'vi' cho tiếng Việt
+
+    try {
+        const responseM = await axios.post(url, [{
+            'Text': text,
+        }], {
+            headers: {
+                'Ocp-Apim-Subscription-Key': mapiKey,
+                'Ocp-Apim-Subscription-Region': location,
+                'Content-Type': 'application/json',
+            },
+        });
+
+        return responseM.data[0].translations[0].text; 
+    } catch (error) {
+        console.error('Lỗi khi dịch văn bản:', error);
+        return text;  // Trả về văn bản gốc nếu có lỗi
+    }
+}
 
 
 
 
 
-// Lắng nghe tin nhắn
-// client.on('messageCreate', async (message) => {
-//     // Bỏ qua tin nhắn của bot
-//     if (message.author.bot) return;
-
-//     // Kiểm tra nếu tin nhắn bắt đầu với "!game"
-//     if (message.content.startsWith('/game')) {
-//         // Lấy tên game từ tin nhắn
-//         const gameName = message.content.replace('/game', '').trim();
-
-//         // Kiểm tra nếu không có tên game
-//         if (!gameName) {
-//             return message.channel.send('Vui lòng cung cấp tên game!');
-//         }
-
-//         // Gọi API RAWG để lấy thông tin game
-//         const apiKey = '33153d876f664c52b6180d903a53088b';  // Thay bằng API key của bạn
-//         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
-
-//         try {
-//             const response = await axios.get(apiUrl);
-//             const gameInfo = response.data.results[0];  // Lấy game đầu tiên từ kết quả tìm kiếm
-//             console.log(response.data);
-//             if (gameInfo) {
-//                 // Tạo Rich Embed với thông tin game
-//                 const gameEmbed = new EmbedBuilder()
-//                     .setColor('#0099ff')
-//                     .setTitle(gameInfo.name)
-//                     .setURL(`https://rawg.io/games/${gameInfo.slug}`)  // Link đến trang RAWG của game
-//                     .setDescription(gameInfo.description_raw ? gameInfo.description_raw.substring(0, 200) + '...' : 'Không có mô tả.')
-//                     .addFields(
-//                         { name: 'Ngày phát hành', value: gameInfo.released || 'Không có thông tin', inline: true },
-//                         { name: 'Xếp hạng', value: `${gameInfo.rating || 'Không có'} / 5`, inline: true },
-//                         { 
-//                             name: 'Nền tảng', 
-//                             value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}`, 
-                             
-//                         },
-//                     )
-//                     .setImage(gameInfo.background_image)  // Ảnh bìa của game
-                    
-
-//                 // Gửi Embed vào kênh Discord
-//                 message.channel.send({ embeds: [gameEmbed] });
-//             } else {
-//                 message.channel.send('Không tìm thấy game nào.');
-//             }
-//         } catch (error) {
-//             message.channel.send('Có lỗi xảy ra khi tìm kiếm thông tin game.');
-//         }
-//     }
-// });
 
 // Đăng nhập vào bot bằng token Discord của bạn
 client.login(discordToken);
