@@ -20,10 +20,10 @@ function formatDate(dateString) {
 
 function formatRating(title) {
     switch(title){
-        case 'exceptional': return "Rất tích cực";break;
-        case 'recommended': return "Tích cực";break;
+        case 'exceptional': return "Very positive";break;
+        case 'recommended': return "Positive";break;
         case 'meh': return "Mixed";break;
-        case 'skip' : return "Tiêu cực";break;
+        case 'skip' : return "Negative";break;
         default: return "";
     }
 }
@@ -74,7 +74,7 @@ async function createChart(ratings) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'TỔNG HỢP ĐÁNH GIÁ',
+                label: 'SUMMARY OF REVIEWS',
                 data: data,
                 backgroundColor: backgroundColors, // Sử dụng mảng màu sắc
                 borderColor: '',
@@ -116,7 +116,7 @@ async function createChart(ratings) {
                     },
                     title: {
                         display: true,
-                        text: 'SỐ LƯỢNG',
+                        text: 'QUANTITY',
                         color: '#64BDF0' // Đặt màu chữ cho tiêu đề trục y
                     }
                 },
@@ -133,7 +133,7 @@ async function createChart(ratings) {
                     },
                     title: {
                         display: true,
-                        text: 'XẾP HẠNG',
+                        text: 'RANKING',
                         color: '#64BDF0' // Đặt màu chữ cho tiêu đề trục x
                     }
                 }
