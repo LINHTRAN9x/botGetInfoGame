@@ -3,14 +3,14 @@ const axios = require('axios');
 require('dotenv').config();
 const dns = require('dns');
 
-// Thiết lập để chỉ sử dụng IPv4
+
 dns.setDefaultResultOrder('ipv4first');
 
 var discordToken = process.env.DISCORD_TOKEN;
 var apiKey1 = process.env.API_KEY;
 var appId = process.env.APP_ID
 var appSecret = process.env.APP_SECRET;
-var ggApiKeySecrec = process.env.GG_API_KEY; //
+var ggApiKeySecrec = process.env.GG_API_KEY; 
 var mApiKeySecrec = process.env.M_API_KEY;
 
 function formatDate(dateString) {
@@ -20,10 +20,10 @@ function formatDate(dateString) {
 
 function formatRating(title) {
     switch(title){
-        case 'exceptional': return "Very positive";break;
-        case 'recommended': return "Positive";break;
+        case 'exceptional': return "Rất tích cực";break;
+        case 'recommended': return "Tích cực";break;
         case 'meh': return "Mixed";break;
-        case 'skip' : return "Negative";break;
+        case 'skip' : return "Tiêu cực";break;
         default: return "";
     }
 }
@@ -36,119 +36,100 @@ const { Chart, registerables } = require('chart.js');
 Chart.register(...registerables);
 
 async function createChart(ratings) {
-    const canvas = createCanvas(800, 400); // Kích thước hình ảnh
+    const canvas = createCanvas(800, 400); 
     const context = canvas.getContext('2d');
 
-      // Vẽ nền cho biểu đồ
-      context.fillStyle = '#2A475E'; // Màu nền bạn muốn
-      context.fillRect(0, 0, canvas.width, canvas.height); 
 
-    const labels = ratings.map(rating => formatRating(rating.title)); // Danh sách tên xếp hạng
-    const data = ratings.map(rating => {
-        // Kiểm tra xem đánh giá có tiêu cực hay không
-        if (rating.title === 'skip') {
-            return -rating.count; // Đổi số lượng thành số âm
-        }
-        return rating.count; 
-    }); 
-     
+    context.fillStyle = '#2A475E'; // Màu nền
+    context.fillRect(0, 0, canvas.width, canvas.height); 
 
-    const backgroundColors = ratings.map(rating => {
-        // Đặt màu sắc cho mỗi cột
-        switch (rating.title) {
-            case 'exceptional':
-                return '#66C0F4'; // Màu xanh lá cho đánh giá xuất sắc
-            case 'recommended':
-                return 'rgba(0, 255, 0, 0.5)'; // Màu cam cho đánh giá được đề xuất
-            case 'meh':
-                return 'rgba(255, 165, 0, 0.5)'; // Màu vàng cho đánh giá trung lập
-            case 'skip':
-                return '#A34C25'; // Màu đỏ cho đánh giá tiêu cực
-            default:
-                return 'rgba(0, 153, 255, 0.5)'; // Màu mặc định
-        }
-    });
+
+    const totalPositive = ratings.total_positive;
+    const totalNegative = -ratings.total_negative;
+    const totalReviews = ratings.total_reviews;
+
+    
+    const labels = ['Tích cực', 'Tiêu cực']; 
+    const data = [totalPositive, totalNegative]; 
+
+    const backgroundColors = ['#66C0F4', '#A34C25']; 
 
     const chart = new Chart(context, {
-        type: 'bar', // Loại biểu đồ
+        type: 'bar', 
         data: {
             labels: labels,
             datasets: [{
-                label: 'SUMMARY OF REVIEWS',
+                label: `Tổng đánh giá (${totalReviews} đánh giá)`, 
                 data: data,
-                backgroundColor: backgroundColors, // Sử dụng mảng màu sắc
-                borderColor: '',
+                backgroundColor: backgroundColors, 
                 borderWidth: 1
             }]
         },
         options: {
-            
             plugins: {
                 tooltip: {
-                    backgroundColor: '#2A475E', // Màu nền của biểu đồ
+                    backgroundColor: '#2A475E',
                     titleFont: {
-                    family: 'Roboto', // Chỉ định font cho tooltip
-                    size: 16,
-                    style: 'bold',
-                    lineHeight: 1.2
-                },
-                bodyFont: {
-                    family: 'Roboto', // Chỉ định font cho body tooltip
-                    size: 14,
-                    lineHeight: 1.2
-                }
+                        family: 'Roboto',
+                        size: 16,
+                        style: 'bold',
+                        lineHeight: 1.2
+                    },
+                    bodyFont: {
+                        family: 'Roboto',
+                        size: 14,
+                        lineHeight: 1.2
+                    }
                 },
             },
-           
             scales: {
                 y: {
-                    beginAtZero: true,
+                    beginAtZero: true, 
                     ticks: {
-                        callback: (value) => value < 0 ? "-" +Math.abs(value) : value ,// Hiển thị giá trị âm là số dương
                         color: '#64BDF0',
                         font: {
-                        family: 'Roboto', // Chỉ định font cho trục y
-                        size: 14
+                            family: 'Roboto',
+                            size: 14
                         }
                     },
                     grid: {
-                        color: '#64BDF0' // Màu của khung lưới cho trục y
+                        color: '#64BDF0'
                     },
                     title: {
                         display: true,
-                        text: 'QUANTITY',
-                        color: '#64BDF0' // Đặt màu chữ cho tiêu đề trục y
+                        text: 'Số lượng',
+                        color: '#64BDF0'
                     }
                 },
                 x: {
                     ticks: {
-                        color: '#64BDF0', // Đặt màu chữ cho trục x
+                        color: '#64BDF0',
                         font: {
-                        family: 'Roboto', // Chỉ định font cho trục x
-                        size: 14
+                            family: 'Roboto',
+                            size: 14
                         }
                     },
                     grid: {
-                        color: '#64BDF0' // Màu của khung lưới cho trục y
+                        color: '#64BDF0'
                     },
                     title: {
                         display: true,
-                        text: 'RANKING',
-                        color: '#64BDF0' // Đặt màu chữ cho tiêu đề trục x
+                        text: 'Loại đánh giá',
+                        color: '#64BDF0'
                     }
                 }
-            },
-            
+            }
         }
     });
 
-    return canvas.toBuffer(); // Trả về hình ảnh dưới dạng buffer
+    return canvas.toBuffer(); 
 }
 
 
 
 
-// Tạo client Discord
+
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] });
 
 // Bot online
@@ -156,7 +137,7 @@ client.once('ready', () => {
     console.log('Bot đã sẵn sàng!');
 });
 
-// Đăng ký slash command với autocomplete
+
 const rest = new REST({ version: '10' }).setToken(discordToken);
 
 (async () => {
@@ -164,7 +145,7 @@ const rest = new REST({ version: '10' }).setToken(discordToken);
         console.log('Đang đăng ký (/) commands.');
 
         await rest.put(
-            Routes.applicationGuildCommands(appId, appSecret),  // Thay bằng ID ứng dụng và server của bạn
+            Routes.applicationGuildCommands(appId, appSecret), 
             { body: [
                 {
                     name: 'game',
@@ -173,9 +154,9 @@ const rest = new REST({ version: '10' }).setToken(discordToken);
                         {
                             name: 'tên',
                             description: 'Tên game',
-                            type: 3,  // Loại string
+                            type: 3,  
                             required: true,
-                            autocomplete: true  // Bật autocomplete
+                            autocomplete: true  
                         }
                     ]
                 }
@@ -197,26 +178,42 @@ client.on('interactionCreate', async interaction => {
             const gameName = options.getString('tên');
             const ggApiKey = ggApiKeySecrec;
             const ggApiUrl = `https://kgsearch.googleapis.com/v1/entities:search?query=${encodeURIComponent(gameName)}&key=${ggApiKey}&limit=1&indent=True`;
-            const apiKey = apiKey1;  // Thay bằng API key của bạn
+            const apiKey = apiKey1;  
             const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${gameName}`;
+            const steamGetGame = `https://steamcommunity.com/actions/SearchApps/${gameName}?json=1`
 
             try {
                 await interaction.deferReply(); 
                 const response = await axios.get(apiUrl);
                 
-                const gameInfo = response.data.results[0];  // Lấy game đầu tiên
+                const gameInfo = response.data.results[0];  
                 const rs = await axios.get(ggApiUrl);
                 const data = rs.data;
                 console.log("GOOGLE",data.itemListElement[0].result);
-              
+
+                const rsSteam = await axios.get(steamGetGame);
+                
+                const gameSteam = rsSteam.data[0].appid;
+                
+                const steamReviews = `https://store.steampowered.com/appreviews/${gameSteam}?json=1` 
+                const rsSteamReviews = await axios.get(steamReviews);
+                
+                const steam = rsSteamReviews.data.query_summary;
+                const steamReviewUser = rsSteamReviews.data.reviews[0].review;
+                const steamPlayTime = rsSteamReviews.data.reviews[0].author.playtime_forever;
+                
+                
                 
                 
 
                 if (gameInfo) {
-                    const chartBuffer = await createChart(gameInfo.ratings); // Tạo hình ảnh biểu đồ
+                    const chartBuffer = await createChart(steam); 
                     const gameDes = data.itemListElement[0].result.detailedDescription.articleBody;
                     const wikiUrl = data.itemListElement[0].result.detailedDescription.url;
                     const tranlated = await translateWithMicrosoft(gameDes,'vi');
+                    const tranlatedReviewUser = await translateWithMicrosoft(steamReviewUser,'vi');
+                    
+                    
                     
                     const embed = new EmbedBuilder()
                         .setColor('#0099ff')
@@ -224,9 +221,9 @@ client.on('interactionCreate', async interaction => {
                         .setURL(`https://rawg.io/games/${gameInfo.slug}`)
                         .setDescription(tranlated? tranlated: 'Không tìm thấy miêu tả.')
                         .addFields(
-                            { name: 'Chi tiết', value: `${wikiUrl ? wikiUrl : 'Không có'}` },
+                            { name: 'Chi tiết', value: `${wikiUrl  ? wikiUrl : 'Không có' }` },
                             { name: 'Ngày phát hành', value: formatDate(gameInfo.released)  || 'Không có', inline: true },
-                            { name: 'Xếp hạng', value: `${gameInfo.metacritic ? gameInfo.metacritic+" / 100" : gameInfo.rating+" / 5" || 'Không có'}`, inline: true },
+                            { name: 'Điểm số', value: `${gameInfo.metacritic ? gameInfo.metacritic+" / 100" : gameInfo.rating+" / 5" || 'Không có'}`, inline: true },
                            
                             { 
                                 name: 'Nền tảng', 
@@ -236,6 +233,10 @@ client.on('interactionCreate', async interaction => {
                                 name: 'Cửa hàng', 
                                 value: `${gameInfo.stores ? gameInfo.stores.map(p => p.store.name).join(', ') : 'Không có'}`, 
                             },
+                            { 
+                                name: `Bình luận tiêu biểu sau ${steamPlayTime}h chơi`, 
+                                value: `${tranlatedReviewUser ? (tranlatedReviewUser.length > 1024 ? tranlatedReviewUser.substring(0, 1021) + '...' : tranlatedReviewUser) : 'Không có'}`, 
+                            },
                            
 
                         );
@@ -243,9 +244,9 @@ client.on('interactionCreate', async interaction => {
                         if (gameInfo.genres && gameInfo.genres.length > 0) {
                             const genres = gameInfo.genres.map(genre => genre.name);
                         
-                            // Lấy thể loại đầu tiên và gộp các thể loại còn lại
-                            const primaryGenre = genres[0]; // Thể loại chính
-                            const otherGenres = genres.slice(1).join(', '); // Gộp các thể loại còn lại
+                          
+                            const primaryGenre = genres[0]; 
+                            const otherGenres = genres.slice(1).join(', '); 
                         
                             embed.addFields(
                                 { name: 'Thể loại chính', value: primaryGenre, inline: true },
@@ -257,7 +258,7 @@ client.on('interactionCreate', async interaction => {
 
                         embed.setImage('attachment://chart.png')
                    
-                        embed.setThumbnail(gameInfo.background_image); // Ảnh nền
+                        // embed.setThumbnail(gameInfo.background_image); // Ảnh nền
                         
 
                     await interaction.followUp({ embeds: [embed] , files: [{ name: 'chart.png', attachment: chartBuffer }] });
@@ -273,7 +274,7 @@ client.on('interactionCreate', async interaction => {
 
     if (interaction.isAutocomplete()) {
         const focusedValue = interaction.options.getFocused();
-        const apiKey = apiKey1;  // API key của bạn
+        const apiKey = apiKey1; 
         const apiUrl = `https://api.rawg.io/api/games?key=${apiKey}&search=${focusedValue}`;
 
         try {
@@ -293,10 +294,10 @@ client.on('interactionCreate', async interaction => {
 
 async function translateWithMicrosoft(text, targetLang) {
     const mapiKey = mApiKeySecrec;  
-    const endpoint = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'; // Thay bằng URL endpoint của bạn
+    const endpoint = 'https://api.cognitive.microsofttranslator.com/translate?api-version=3.0'; 
     const location = 'southeastasia'; 
 
-    const url = `${endpoint}&to=${targetLang}`;  // Ngôn ngữ đích, ví dụ: 'vi' cho tiếng Việt
+    const url = `${endpoint}&to=${targetLang}`;  
 
     try {
         const responseM = await axios.post(url, [{
@@ -312,7 +313,7 @@ async function translateWithMicrosoft(text, targetLang) {
         return responseM.data[0].translations[0].text; 
     } catch (error) {
         console.error('Lỗi khi dịch văn bản:', error);
-        return text;  // Trả về văn bản gốc nếu có lỗi
+        return text;  
     }
 }
 
@@ -321,5 +322,5 @@ async function translateWithMicrosoft(text, targetLang) {
 
 
 
-// Đăng nhập vào bot bằng token Discord của bạn
+
 client.login(discordToken);
