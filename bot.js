@@ -70,13 +70,13 @@ async function createChart(ratings) {
                 tooltip: {
                     backgroundColor: '#2A475E',
                     titleFont: {
-                        family: 'Roboto',
+                        family: 'Arial',
                         size: 16,
                         style: 'bold',
                         lineHeight: 1.2
                     },
                     bodyFont: {
-                        family: 'Roboto',
+                        family: 'Arial',
                         size: 14,
                         lineHeight: 1.2
                     }
@@ -88,7 +88,7 @@ async function createChart(ratings) {
                     ticks: {
                         color: '#64BDF0',
                         font: {
-                            family: 'Roboto',
+                            family: 'Arial',
                             size: 14
                         }
                     },
@@ -105,7 +105,7 @@ async function createChart(ratings) {
                     ticks: {
                         color: '#64BDF0',
                         font: {
-                            family: 'Roboto',
+                            family: 'Arial',
                             size: 14
                         }
                     },
