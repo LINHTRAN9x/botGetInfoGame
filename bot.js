@@ -7,21 +7,52 @@ const dns = require('dns');
 dns.setDefaultResultOrder('ipv4first');
 
 
-async function getGamePriceFromITAD(gameName) {
-    const url = `https://www.cheapshark.com/api/1.0/games?title=${encodeURIComponent(gameName)}&limit=1`;
+function estimateOwners(ownersRange) {
+    const [minOwners, maxOwners] = ownersRange.split(' .. ').map(str => parseInt(str.replace(/,/g, '')));
+    const averageOwners = (minOwners + maxOwners) / 2; 
+    return averageOwners;
+}
+
+async function getSteamReviewData(appId) {
+    const url = `https://steamspy.com/api.php?request=appdetails&appid=${appId}&`;
 
     try {
-        const responsee = await axios.get(url);
-        const gameData = responsee.data[0];
+        const response = await axios.get(url);
+        const data = response.data;
+      
+       
 
-        if (gameData) {
-            return gameData.cheapest ? `${gameData.cheapest}` : 'Không có thông tin giá';
-        } else {
-            return 'Không tìm thấy game';
-        }
+        const totalReviews = data.positive + data.negative; 
+        const conversionRate = 0.05; 
+
+        const ownersRange = data.owners;
+        const estimatedOwners = estimateOwners(ownersRange);
+        const priceInCents = data.price;
+      
+        const price = (priceInCents / 100).toFixed(2);
+       
+        const exchangeRate = 24000;
+        const priceVND = price * exchangeRate;
+        const estimatedRevenueUSD = estimatedOwners * price;
+        const estimatedRevenueVND = estimatedRevenueUSD * exchangeRate;
+
+        const languages = data.languages;
+        const ccu = data.ccu;
+        
+
+       
+        return { totalReviews,
+                 priceVND,
+                 estimatedRevenueVND,
+                 ccu,
+                 ownersRange,
+                 languages,
+
+
+               };
     } catch (error) {
-        console.error('Lỗi khi lấy giá từ CheapShark:', error);
-        return 'Không thể lấy giá';
+        console.error('Lỗi khi lấy dữ liệu từ Steam:', error);
+        return { totalReviews: 0, estimatedSales: 0 };
     }
 }
 
@@ -209,21 +240,17 @@ client.on('interactionCreate', async interaction => {
                 const gameInfo = response.data.results[0];  // Lấy game đầu tiên
                 const rs = await axios.get(ggApiUrl);
                 const data = rs.data;
-                console.log("GOOGLE", data.itemListElement[0].result);
+                
 
                 const rsSteam = await axios.get(steamGetGame);
                 const gameSteam = rsSteam.data[0].appid;
 
                 //Lấy giá từ Steam
-                const steamDetailsResponse = await getGamePriceFromITAD(gameName);
-                console.log("PRICE", steamDetailsResponse);
+                const getSteamData = await getSteamReviewData(gameSteam);
+                
+                
 
-                let averagePrice;
-                if (steamDetailsResponse) {
-                    averagePrice = steamDetailsResponse; 
-                } else {
-                    averagePrice = "Không tìm thấy giá"; 
-                }
+              
 
 
                 const steamReviews = `https://store.steampowered.com/appreviews/${gameSteam}?json=1`;
@@ -240,12 +267,7 @@ client.on('interactionCreate', async interaction => {
                     const tranlated = await translateWithMicrosoft(gameDes, 'vi');
                     const tranlatedReviewUser = await translateWithMicrosoft(steamReviewUser, 'vi');
                     
-                    // Tính số lượng bán và doanh thu
-                    // const currentPlayers = steam.current_players; // Số lượng người chơi hiện tại
-                    // const conversionRate = 0.1; // Giả định tỷ lệ chuyển đổi
-                    // const estimatedSales = Math.floor(currentPlayers * conversionRate);
-                    // const estimatedRevenue = estimatedSales * averagePrice;
-                    // console.log(estimatedRevenue,estimatedSales,currentPlayers)
+                
 
                     const embed = new EmbedBuilder()
                         .setColor('#0099ff')
@@ -256,9 +278,14 @@ client.on('interactionCreate', async interaction => {
                             { name: 'Chi tiết', value: `${wikiUrl ? wikiUrl : 'Không có'}` },
                             { name: 'Ngày phát hành', value: formatDate(gameInfo.released) || 'Không có', inline: true },
                             { name: 'Điểm số', value: `${gameInfo.metacritic ? gameInfo.metacritic + " / 100" : gameInfo.rating + " / 5" || 'Không có'}`, inline: true },
-                            { name: 'Giá', value: `$${averagePrice}`, inline: true },
-                            // { name: 'Số lượng bán ước tính', value: `${estimatedSales}`, inline: true },
-                            // { name: 'Doanh thu ước tính', value: `$${estimatedRevenue}`, inline: true },
+                            { name: 'Đang chơi', value: `${getSteamData.ccu? getSteamData.ccu.toLocaleString() : "Không có"}người `, inline: true },
+                            { name: 'Giá', value: `${getSteamData.priceVND? getSteamData.priceVND.toLocaleString() : "Không có"}đ `, inline: true },
+                            { name: 'Số lượng đánh giá', value: `${getSteamData.totalReviews?getSteamData.totalReviews.toLocaleString() : "Không có"}người `, inline: true },
+                            
+                            { name: 'Doanh thu ước tính', value: `${getSteamData.estimatedRevenueVND?getSteamData.estimatedRevenueVND.toLocaleString():"Không có"}đ`, inline: true },
+                            { name: 'Số lượng bán', value: `${getSteamData.ownersRange? getSteamData.ownersRange:"Không có"}`, inline: true },
+                            { name: 'Ngôn ngữ', value: `${getSteamData.languages ? getSteamData.languages : 'Không có'}` },
+                          
                             { name: 'Nền tảng', value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}` },
                             { name: 'Cửa hàng', value: `${gameInfo.stores ? gameInfo.stores.map(p => p.store.name).join(', ') : 'Không có'}` },
                             { name: `Bình luận tiêu biểu sau ${steamPlayTime}h chơi`, value: `${tranlatedReviewUser ? (tranlatedReviewUser.length > 1024 ? tranlatedReviewUser.substring(0, 1021) + '...' : tranlatedReviewUser) : 'Không có'}` },
