@@ -256,7 +256,7 @@ client.on('interactionCreate', async interaction => {
                             { name: 'Chi tiết', value: `${wikiUrl ? wikiUrl : 'Không có'}` },
                             { name: 'Ngày phát hành', value: formatDate(gameInfo.released) || 'Không có', inline: true },
                             { name: 'Điểm số', value: `${gameInfo.metacritic ? gameInfo.metacritic + " / 100" : gameInfo.rating + " / 5" || 'Không có'}`, inline: true },
-                            { name: 'Giá', value: `$${averagePrice.toFixed(2)}`, inline: true },
+                            { name: 'Giá', value: `$${averagePrice}`, inline: true },
                             // { name: 'Số lượng bán ước tính', value: `${estimatedSales}`, inline: true },
                             // { name: 'Doanh thu ước tính', value: `$${estimatedRevenue}`, inline: true },
                             { name: 'Nền tảng', value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}` },
