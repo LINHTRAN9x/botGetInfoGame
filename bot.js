@@ -241,11 +241,11 @@ client.on('interactionCreate', async interaction => {
                     const tranlatedReviewUser = await translateWithMicrosoft(steamReviewUser, 'vi');
                     
                     // Tính số lượng bán và doanh thu
-                    const currentPlayers = steam.current_players; // Số lượng người chơi hiện tại
-                    const conversionRate = 0.1; // Giả định tỷ lệ chuyển đổi
-                    const estimatedSales = Math.floor(currentPlayers * conversionRate);
-                    const estimatedRevenue = estimatedSales * averagePrice);
-                    console.log(estimatedRevenue,estimatedSales,currentPlayers)
+                    // const currentPlayers = steam.current_players; // Số lượng người chơi hiện tại
+                    // const conversionRate = 0.1; // Giả định tỷ lệ chuyển đổi
+                    // const estimatedSales = Math.floor(currentPlayers * conversionRate);
+                    // const estimatedRevenue = estimatedSales * averagePrice;
+                    // console.log(estimatedRevenue,estimatedSales,currentPlayers)
 
                     const embed = new EmbedBuilder()
                         .setColor('#0099ff')
@@ -257,8 +257,8 @@ client.on('interactionCreate', async interaction => {
                             { name: 'Ngày phát hành', value: formatDate(gameInfo.released) || 'Không có', inline: true },
                             { name: 'Điểm số', value: `${gameInfo.metacritic ? gameInfo.metacritic + " / 100" : gameInfo.rating + " / 5" || 'Không có'}`, inline: true },
                             { name: 'Giá', value: `$${averagePrice.toFixed(2)}`, inline: true },
-                            { name: 'Số lượng bán ước tính', value: `${estimatedSales}`, inline: true },
-                            { name: 'Doanh thu ước tính', value: `$${estimatedRevenue}`, inline: true },
+                            // { name: 'Số lượng bán ước tính', value: `${estimatedSales}`, inline: true },
+                            // { name: 'Doanh thu ước tính', value: `$${estimatedRevenue}`, inline: true },
                             { name: 'Nền tảng', value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}` },
                             { name: 'Cửa hàng', value: `${gameInfo.stores ? gameInfo.stores.map(p => p.store.name).join(', ') : 'Không có'}` },
                             { name: `Bình luận tiêu biểu sau ${steamPlayTime}h chơi`, value: `${tranlatedReviewUser ? (tranlatedReviewUser.length > 1024 ? tranlatedReviewUser.substring(0, 1021) + '...' : tranlatedReviewUser) : 'Không có'}` },
