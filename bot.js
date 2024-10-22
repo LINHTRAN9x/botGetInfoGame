@@ -244,7 +244,7 @@ client.on('interactionCreate', async interaction => {
                     const currentPlayers = steam.current_players; // Số lượng người chơi hiện tại
                     const conversionRate = 0.1; // Giả định tỷ lệ chuyển đổi
                     const estimatedSales = Math.floor(currentPlayers * conversionRate);
-                    const estimatedRevenue = (estimatedSales * averagePrice).toFixed(2);
+                    const estimatedRevenue = estimatedSales * averagePrice);
                     console.log(estimatedRevenue,estimatedSales,currentPlayers)
 
                     const embed = new EmbedBuilder()
