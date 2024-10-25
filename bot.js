@@ -283,7 +283,7 @@ client.on('interactionCreate', async interaction => {
                             { name: 'Số lượng đánh giá', value: `${getSteamData.totalReviews?getSteamData.totalReviews.toLocaleString() : "Không có"}người `, inline: true },
                             
                             { name: 'Doanh thu ước tính', value: `${getSteamData.estimatedRevenueVND?getSteamData.estimatedRevenueVND.toLocaleString():"Không có"}đ`, inline: true },
-                            { name: 'Số lượng bán', value: `${getSteamData.ownersRange? getSteamData.ownersRange:"Không có"}`, inline: true },
+                            { name: 'Số lượng bán ước tính', value: `${getSteamData.ownersRange? getSteamData.ownersRange:"Không có"}`, inline: true },
                             { name: 'Ngôn ngữ', value: `${getSteamData.languages ? getSteamData.languages : 'Không có'}` },
                           
                             { name: 'Nền tảng', value: `${gameInfo.platforms ? gameInfo.platforms.map(p => p.platform.name).join(', ') : 'Không có'}` },
